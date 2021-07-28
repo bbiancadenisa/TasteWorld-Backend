@@ -1,9 +1,18 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const Recipe = require("./schemas/recipe");
 const User = require("./schemas/user");
 const app = express();
-const port = 3000;
+const port = 3001;
+
+
+const corsOptions ={
+  origin:'http://localhost:3000', 
+  credentials:true,            //access-control-allow-credentials:true
+  optionSuccessStatus:200
+}
+app.use(cors(corsOptions));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -37,7 +46,7 @@ app.get("/all-recipes", async (req, res) => {
 
 app.get("/single-recipe/:id", async (req, res) =>{
   try{
-    const result = await Recipe.findById("61012b491e8eb4344ca29f96");
+    const result = await Recipe.findById(req.params.id);
     return res.status(200).json(result);
 
   }catch(err){
@@ -45,6 +54,8 @@ app.get("/single-recipe/:id", async (req, res) =>{
     return res.status(404).json(err);
   }
 })
+
+app.use('*', (req, res) => res.status(404).json({message: "Pagina nu a fost gasita"}));
 
 //connect to mongodb
 const mongoURI = "mongodb+srv://denisa:tasteworld@cluster0.yhbxa.mongodb.net/taste-world?retryWrites=true&w=majority";
@@ -55,6 +66,7 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
   next();
 });
+
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
   console.log("Connected to database");
