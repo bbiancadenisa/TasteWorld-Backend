@@ -1,11 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 const Recipe = require("./schemas/recipe");
 const User = require("./schemas/user");
 const app = express();
 const port = 3001;
 
+
+app.use(express.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 const corsOptions ={
   origin:'http://localhost:3000', 
@@ -18,14 +22,9 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 })
 
-app.get("/add-recipe", async (req, res) => {
+app.post("/add-recipe", async (req, res) => {
   try {
-    const recipe = new Recipe({
-      title: "soup",
-      ingredients: "flour, eggs, milk",
-      prepTime: 30,
-      prepInstructions: "heat the oven"
-    });
+    const recipe = new Recipe(req.body);
     const result = await recipe.save();
     return res.status(200).json(result);
   }catch(err){
