@@ -34,8 +34,10 @@ app.get("/", (req, res) => {
 
 app.post("/add-recipe", async (req, res) => {
   try {
-    const recipe = new Recipe(req.body);
+    console.log(req.body);
+    const recipe = new Recipe(req.body)
     const result = await recipe.save();
+    console.log(result)
     return res.status(200).json(result);
   } catch (err) {
     console.log(err);
@@ -80,18 +82,18 @@ app.post("/login", async (req, res) => {
 })
 
 app.get("/verifyUser",(req,res,next) => {
-  console.log(req.session); //the req.session from login does not persist
-  if(req.session.loggedin === true){
-    next();
-  }else{
+  // if(req.session.loggedin === true){
+  //   next();
+  // }else{
     // return res.status(403).json("Not authenticated");
     return res.status(200);
-  }
+  // }
 })
 
 app.get("/all-recipes", async (req, res) => {
   try {
     const result = await Recipe.find();
+    console.log(result);
     return res.status(200).json(result);
   } catch (err) {
     console.log(err);
