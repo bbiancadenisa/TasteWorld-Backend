@@ -18,6 +18,16 @@ const corsOptions = {
 }
 app.use(cors(corsOptions));
 
+app.use(session({
+	secret: 'secret',
+	resave: true,
+	saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    maxAge: 3600000
+  }
+}));
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 })
@@ -53,16 +63,29 @@ app.post("/login", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const result = await User.findOne({ username: username });
-    console.log(result)
+    if(result){
+      req.session.loggedin = true; //req.session param set
+			req.session.username = username;
+    }
     if (!result) {
       return res.status(400).json({ error: "Username not found" });
     }
     if(result.password == password){
-      return res.status(200).json(result);
+      return res.send(req.session);
     }
   } catch (err) {
     console.log(err);
     return res.status(404).json(err);
+  }
+})
+
+app.get("/verifyUser",(req,res,next) => {
+  console.log(req.session); //the req.session from login does not persist
+  if(req.session.loggedin === true){
+    next();
+  }else{
+    // return res.status(403).json("Not authenticated");
+    return res.status(200);
   }
 })
 
